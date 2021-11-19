@@ -15,14 +15,14 @@ print("Apprentissage terminé.")
 
 def blague():
 
-	list_blague = ["Que demande un footballeur à son coiffeur ? La coupe du monde s’il vous plait",
+    list_blague = ["Que demande un footballeur à son coiffeur ? La coupe du monde s’il vous plait",
     	"C'est quoi une chauve-souris avec une perruque? Une souris.",
     	"Que fait une fraise sur un cheval ? Tagada Tagada",
     	"C'est l'histoire de 2 patates qui traversent la route. L’une d’elles se fait écraser. L’autre dit : « Oh purée ! »"]
 
-	blague = list_blague[random.randint(0, len(list_blague))]
+    blague = list_blague[random.randint(0, len(list_blague))]
 
-	rhasspy.text_to_speech(blague)
+    rhasspy.text_to_speech(blague)
 
 
 while True:
