@@ -29,13 +29,16 @@ def temperature():
 	rhasspy.text_to_speech(f"il fait {temperature} degrés en se moment")
 	print(temperature)
 
+
+	#rajouter phrase perso en fct de la température
 	if temperature > 30:
-	  sense.show_message(str(temperature), text_colour=[255, 0, 0]) #texte en rouge si il fait chaud
+	 	sense.show_message(str(temperature), text_colour=[255, 0, 0]) #texte en rouge si il fait chaud
 
 	elif temperature < 15:
 		sense.show_message(str(temperature), text_colour=[0, 0, 255]) #texte en bleu si froid
+
 	else:
-	  sense.show_message(str(temperature), text_colour=[0, 255,0]) #texte en vert si il fait bon
+	 	sense.show_message(str(temperature), text_colour=[0, 255,0]) #texte en vert si il fait bon
 
 
 while True:
