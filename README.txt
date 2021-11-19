@@ -1,1 +1,4 @@
-Projet 3 
+Contexte:
+
+Notre  ́equipe a  ́et ́e recrut ́ee par le service Sant ́e de l’E ́tat belge afin d’aider les personnes ˆag ́ees `a rester autonomes. Les sondages affirment que les besoins de base sont de retenir leur liste de courses et leur code de carte bancaire. Pour plus de s ́ecurit ́e, ce code doit ˆetre crypt ́e. La tˆache `a r ́ealiser est de cr ́eer un assistant vocal qui pourra effectuer ces deux taches. Une ou plusieurs autres fonctionnalit ́es au choix devront ˆetre disponibles. Celles-ci devront obligatoirement se baser sur un ou plusieurs capteurs pr ́esents sur le SenseHat, par exemple le gyroscope, thermom`etre, acc ́el ́erom`etre, capteur de temp ́erature / pression / humidit ́e), tout en utilisant la reconnaissance vocale avec le microphone (l’ ́ecran et le joystick si besoin). Pour relever ce d ́efi, un outil appel ́e PaPi (Raspberry pi) est `a disposition. Ce dernier permet de lancer des commandes grˆace `a une synth`ese vocale.
+
