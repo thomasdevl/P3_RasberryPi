@@ -20,7 +20,7 @@ def blague():
     	"Que fait une fraise sur un cheval ? Tagada Tagada",
     	"C'est l'histoire de 2 patates qui traversent la route. L’une d’elles se fait écraser. L’autre dit : « Oh purée ! »"]
 
-	blague = list_blague[random.randint(0, len(list_blague))]
+	blague = list_blague[random.randint(0, len(list_blague)-1)]
 
 	rhasspy.text_to_speech(blague)
 
@@ -40,6 +40,35 @@ def temperature():
 	else:
 	 	sense.show_message(str(temperature), text_colour=[0, 255,0]) #texte en vert si il fait bon
 
+def course():
+	
+
+	while True:
+
+		if len(liste_de_course) == 0:
+			rhasspy.text_to_speech("Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
+			intent = rhasspy.speech_to_intent()
+
+			while True:
+
+				if intent["name"] == "": # si pas de message 
+			    	rhasspy.text_to_speech("je n'ai rien entendu")
+			    	continue
+
+			    elif intent["name"] == "Oui":
+			    	rhasspy.text_to_speech("Nouvelle liste de course crée")
+			    	liste_de_course = []
+			    	pass
+
+			    elif intent["name"] == "Non":
+			    	break
+
+		
+		break
+
+
+
+
 
 while True:
     sense.show_letter("?")
@@ -57,25 +86,31 @@ while True:
     else:
 
 	    # Enonce la commande vocale reçue et les variables.
-	    if intent["variables"] == "":#si pas de paramètres
+	    if intent["variables"] == "{}":#si pas de paramètres A DEBUG
 	    	rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
 	    	print(intent["name"])
 
 	    else:
+
+	    	if intent["name"] == "Arret": # si cmd arret stop le programme
+		    	rhasspy.text_to_speech("Au revoir!")
+		    	quit()
+
 	    	rhasspy.text_to_speech("Vous avez lancé la commande {} avec les paramètres {}".format(intent["name"], intent["variables"]))
 	    	print(intent["name"])
 	    	print(intent["variables"])
 
 	    # Affiche la commande vocale reçue.
-	    sense.show_message("Commande : {}".format(intent["name"]), scroll_speed=0.07)
+	    sense.show_message("Cmd: : {}".format(intent["name"]), scroll_speed=0.07)
 
-    if intent["name"] == "Arret": # si cmd arret stop le programme
-    	rhasspy.text_to_speech("Au revoir!")
-    	quit()
+    
 
     elif intent["name"] == 'Blague': # fais une blague
     	blague()
     	
     elif intent["name"] == 'Temperature':
     	temperature()
+
+    elif inten["name"] == 'Course':
+    	course()
 
