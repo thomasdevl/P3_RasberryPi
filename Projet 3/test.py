@@ -1,15 +1,19 @@
 import rhasspy
 from sense_hat import SenseHat
 import random
+import closing as cl
+import opening as op
+
 
 sense = SenseHat()
 
 # Lance l'apprentissage du fichier sentences.ini. Commentez cette partie si vous souhaitez ne pas le lancer 
-
+'''
 sense.show_letter("A")
 print("Lancement de l'apprentissage.")
 rhasspy.train_intent_files("/home/pi/sentences.ini") 
 print("Apprentissage terminé.")
+'''
 
 #setup des couleurs
 green = (0, 255, 0)
@@ -20,6 +24,7 @@ white = (255,255,255)
 nothing = (0,0,0)
 pink = (255,105, 180)
 grey = (95,95,95)
+brown = (139,69,19)
 
 def SMILEY_logo():
 	#fait un smile 
@@ -27,19 +32,22 @@ def SMILEY_logo():
     Y = yellow
     B = blue
     O = nothing
+    R = red
+    P = pink
+
     logo = [
     O, O, O, Y, Y, O, O, O,
     O, Y, Y, Y, Y, Y, O, O,
-    O, Y, O, Y, Y, O, Y, O,
+    O, Y, P, Y, Y, P, Y, O,
     Y, Y, Y, Y, Y, Y, Y, Y,
     Y, B, Y, Y, Y, Y, B, Y,
     O, Y, B, B, B, B, Y, O,
-    O, O, Y, G, G, Y, O, O,
+    O, O, Y, R, R, Y, O, O,
     O, O, O, Y, Y, O, O, O,
     ]
     return logo
 
-def thermostat():
+def thermostat_logo():
   	#fait un thermostat
 	O = nothing 
 	W = white
@@ -58,6 +66,22 @@ def thermostat():
 	]
 	return logo
 
+def cherry_logo():
+    R = red
+    B = brown
+    O = nothing
+    logo = [
+    O, O, O, O, B, O, O, O,
+    O, O, O, O, B, O, O, O,
+    O, O, O, B, O, B, O, O,
+    O, O, R, O, O, B, O, O,
+    O, R, R, R, O, R, O, O,
+    O, O, R, O, R, R, R, O,
+    O, O, O, O, O, R, O, O,
+    O, O, O, O, O, O, O, O,
+    ]
+    return logo
+
 
 def blague():
 
@@ -75,13 +99,13 @@ def blague():
 
 def temperature():
 	
+	#rajouter un dessin de thermostat 
+	sense.set_pixels(thermostat_logo())
+
 	#capte la température et la dis 
 	temperature = round(sense.temp)
 	rhasspy.text_to_speech(f"il fait {temperature} degrés en se moment")
 	print(temperature)
-
-	#rajouter un dessin de thermostat 
-	sense.set_pixels(thermostat())
 
 	
 	#affiche la température sur les LED 
@@ -98,48 +122,51 @@ def temperature():
 	 	rhasspy.text_to_speech(f"il fait bon dehors")
 
 
-class ListeDeCourse:
-
-	def __inti__(self,num,liste):
-		self.num = num
-		self.liste = []
-
-	def remove(self,item):
-
-		self.liste.remove(item)
-
-	def add(self,item):
-
-		self.liste.add(item)
-
 def course():
-	
-	#rajouter un truc de course ?? en faire une class pour pouvoir faire plusieurs liste a la fois 
 
-	while True:
+	sense.set_pixels(cherry_logo())
 
-		liste_de_course = []
+	try:
 
-		if len(liste_de_course) == 0:
-			rhasspy.text_to_speech("Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
-			intent = rhasspy.speech_to_intent()
+		if len(liste_course)>=1 :
+			rhasspy.text_to_speech("let's go")
+			rhasspy.text_to_speech(f"Votre liste se compose de{liste_course[0]} ")
+		
+	except:
 
-			while True:
+		rhasspy.text_to_speech("Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
+		intent=rhasspy.speech_to_intent()
 
-				if intent["name"] == "": # si pas de message 
-			    	rhasspy.text_to_speech("je n'ai rien entendu")
-			    	continue
+		while True:
 
-			    elif intent["name"] == "Oui":
-			    	rhasspy.text_to_speech("Nouvelle liste de course crée")
-			    	
-			    elif intent["name"] == "Non":
-			    	break
+			# si pas de message 
+			if intent["name"]=="":
+				rhasspy.text_to_speech("je n'ai rien entendu")
+				continue
 
-		break
+			elif intent["name"]=="Oui":
+				rhasspy.text_to_speech("Nouvelle liste de course créée")
+				liste_course=[]
+				rhasspy.text_to_speech("Quel aliment voulez vous ajoutez a la liste?")
 
+				while True:
+					aliment =rhasspy.speech_to_text()
+
+					if aliment == "":
+						rhasspy.text_to_speech("je n'ai rien entendu")
+						continue
+					else:
+						liste_course.append(aliment)
+						course()
+
+			elif intent["name"]=="Non":
+				break
+
+
+op.opening()
 
 while True:
+
     sense.show_letter("?")
     # Introduction énoncée
     rhasspy.text_to_speech("Énoncez votre phrase, s'il vous plait.")
@@ -155,7 +182,7 @@ while True:
     else:
 
 	    # Enonce la commande vocale reçue et les variables.
-	    if intent["variables"] == "{}":#si pas de paramètres A DEBUG
+	    if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course':#si pas de paramètres A DEBUG
 	    	rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
 	    	print(intent["name"])
 
@@ -163,6 +190,8 @@ while True:
 
 	    	if intent["name"] == "Arret": # si cmd arret stop le programme
 		    	rhasspy.text_to_speech("Au revoir!")
+		    	cl.closing()
+		    	sense.clear()
 		    	quit()
 
 	    	rhasspy.text_to_speech("Vous avez lancé la commande {} avec les paramètres {}".format(intent["name"], intent["variables"]))
@@ -170,10 +199,10 @@ while True:
 	    	print(intent["variables"])
 
 	    # Affiche la commande vocale reçue.
-	    sense.show_message("Cmd: : {}".format(intent["name"]), scroll_speed=0.07)
+	    sense.show_message(" {}".format(intent["name"]), scroll_speed=0.09)
 
 
-    elif intent["name"] == 'Blague': 
+    if intent["name"] == 'Blague': 
     	blague()
     	
     elif intent["name"] == 'Temperature':
