@@ -83,4 +83,4 @@ def locker_logo():
     O, Y, Y, Y, Y, Y, Y, O,
     O, Y, Y, Y, Y, Y, Y, O,
     ]
-    return logo
+    sense.set_pixels(logo)
