@@ -69,4 +69,18 @@ def cherry():
     ]
     sense.set_pixels(logo)
 
-
+def locker_logo():
+    Y = yellow
+    G = grey
+    O = nothing
+    logo = [
+    O, O, O, G, G, O, O, O,
+    O, O, G, O, O, G, O, O,
+    O, O, G, O, O, G, O, O,
+    O, Y, Y, Y, Y, Y, Y, O,
+    O, Y, Y, Y, Y, Y, Y, O,
+    O, Y, Y, Y, Y, Y, Y, O,
+    O, Y, Y, Y, Y, Y, Y, O,
+    O, Y, Y, Y, Y, Y, Y, O,
+    ]
+    return logo
