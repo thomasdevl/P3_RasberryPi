@@ -1,7 +1,7 @@
 
 ############################################################
-# 			PaPi				   #	
-# 		Code réalisé par 			   #	
+# 			    PaPi			   #	
+# 		      Code réalisé par 		    	   #	
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
 
@@ -21,7 +21,6 @@ sense.show_letter("A")
 print("Lancement de l'apprentissage.")
 rhasspy.train_intent_files("/home/pi/sentences.ini") 
 print("Apprentissage terminé.")
-
 '''
 
 ##########
@@ -36,8 +35,7 @@ def blague():
 	list_blague = ["Que demande un footballeur à son coiffeur ? La coupe du monde s’il vous plait",
     	"C'est quoi une chauve-souris avec une perruque? Une souris.",
     	"Que fait une fraise sur un cheval ? Tagada Tagada",
-    	"C'est l'histoire de 2 patates qui traversent la route. L’une d’elles se fait écraser. L’autre dit : « Oh purée ! »"
-		"C'est quoi la ressemblance entre un noir et un bebe? Quand c'est noir c'est que c'est rater "]
+    	"C'est l'histoire de 2 patates qui traversent la route. L’une d’elles se fait écraser. L’autre dit : « Oh purée ! »"]
 
     #prend un blague au "hasard" de la liste et la dis 
 	blague = list_blague[random.randint(0, len(list_blague)-1)]
@@ -89,6 +87,12 @@ def course():
 	# retirer un item ou une quantité précise d'un item 
 	# lire la liste 
 
+	def leave():
+		'''
+		permet de retourner a la boucle global
+		'''
+		main()
+
 
 	def quantite(aliment):
 		'''
@@ -102,15 +106,17 @@ def course():
 			intent = rhasspy.speech_to_intent()
 
 			# si pas de message 
-			if intent["name"]=="": 
-				continue
+			if intent["name"]=="nombre":
 
-			elif intent["name"]=="nombre":
-
-				print(intent["variables"]["nombre"])
 				return intent["variables"]["nombre"]
 
-	def add_items():
+			else:
+				rhasspy.text_to_speech("Je n'ai rien entendu")
+				continue
+
+				
+
+	def add_items(liste_course):
 		'''
 		rajouter un item et sa quantité a la liste puis rappelle la fonction add_items
 		'''
@@ -125,26 +131,63 @@ def course():
 				
 				#print(intent)
 				#rajoutez un aliment 
-				print(intent["variables"]["aliment"])
+				
 
 				aliment = intent["variables"]["aliment"] #aliment a rajouter dans la liste
+
+				print(f"aliment : {aliment}")
 				
 				#choisir la quantité à ajouté
 				quant = quantite(aliment) # renvoi le nombre a rajouté
 
+				print(f"quantité : {quant}")
 				#rajoute la quantité et l'aliment demandé 
-				liste_course.append([f"{aliment},{quant}"])
-				rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
+				liste_course.append([f"{quant},{aliment}"])
+				if int(quant) > 1:
+					rhasspy.text_to_speech(f"{quant}{aliment} ont été rajouté a la liste ")
+				else:
+					rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
+
 				print(liste_course)
 
-				course()
+				#dis la liste de course
+				read_list(liste_course)
+
+
+				#dmd si veut raouter un autre élement a la liste
+				while True:
+
+					rhasspy.text_to_speech("Voulez vous rajoutez un autre élément a la liste")
+
+					intent=rhasspy.speech_to_intent()
+
+					if intent["name"] == "Oui":
+						add_items(liste_course)
+
+					elif intent["name"] == "Non":
+						leave()
+
+					elif intent["name"] == "":
+						rhasspy.text_to_speech("je n'ai rien entendu.")
+						continue
 				
 			else:
 				rhasspy.text_to_speech("je n'ai rien entendu. Quel aliment voulez vous ajoutez un item a la liste?")
 
 
+	def read_list(liste_course):
+		'''
+		lis la liste de course
+
+		'''
+		rhasspy.text_to_speech("Votre liste est composé de :")
+
+		for i in liste_course:
+			for z in i:
+				rhasspy.text_to_speech(z.replace(','," ")) 
+
 	
-	def liste_vide():
+	def liste_vide(liste_course):
 		'''
 		si la liste est vide dmd si veux creer une liste 
 		'''
@@ -158,109 +201,156 @@ def course():
 
 				# si pas de message 
 				if intent["name"]=="": 
-					rhasspy.text_to_speech("je n'ai rien entendu. Votre liste est vide voulez vous rajoutez quelque chose dedans?")
+					rhasspy.text_to_speech("je n'ai rien entendu. Votre liste est vide voulez vous rajoutez quelque chose?")
 					continue
 				
 				# rajoutez un item 
 				elif intent["name"]=="Oui":
-					add_items()
+					add_items(liste_course)
 					
 				# quitter la fonction
 				elif intent["name"]=="Non":
-					break
+					leave()
 		
 
 	
-	def is_list():
+	def is_list(liste_course):
 		'''
 		verif si la liste existe
 		'''
 	
 		try:
 
-			if len(liste_course)>=0 : # si liste existe pas ERROR -> except
+			if type(liste_course) == list : # si liste existe pas ERROR -> except
 				return True
+			else:
+				return False
 
 		except:
 
 			return False
 
 
+	try:
+		if is_list() == False: #si aucune liste existe
 
-	if not is_list(): #si aucune liste existe
+				rhasspy.text_to_speech("Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
 
-			rhasspy.text_to_speech("Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
+				while True:
 
+					intent=rhasspy.speech_to_intent()
+
+					# si pas de message 
+					if intent["name"]=="":
+						rhasspy.text_to_speech("je n'ai rien entendu. Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
+						continue
+
+					elif intent["name"]=="Oui":
+						rhasspy.text_to_speech("Nouvelle liste de course créée")
+						liste_course=[] #création d'une liste vide
+						print("Nouvelle liste de course créée")
+						print(liste_course)
+						liste_vide(liste_course)
+
+					elif intent["name"]=="Non":
+						leave()
+
+		else: #si une liste existe
+
+			#dire la liste et proposer de retirer des bails ou ajoutez ou rien
 			while True:
 
-				intent=rhasspy.speech_to_intent()
+				rhasspy.text_to_speech("Vous avez une liste. Voulez ajoutez un aliment? Retirez un aliment ? Ou lire la liste?")
 
-				# si pas de message 
 				if intent["name"]=="":
-					rhasspy.text_to_speech("je n'ai rien entendu. Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
+					rhasspy.text_to_speech("je n'ai rien entendu")
 					continue
 
-				elif intent["name"]=="Oui":
-					rhasspy.text_to_speech("Nouvelle liste de course créée")
-					liste_course=[] #création d'une liste vide
-					print("Nouvelle liste de course créée")
-					print(liste_course)
-					liste_vide()
+				elif intent["name"] == "lire_liste":
+					read_list(liste_course)
 
-				elif intent["name"]=="Non":
-					break
+				elif intent["name"] == "ajout_liste":
+					add_items()
 
-	else: #si une liste existe
+				elif intent["name"] == "retirer_liste":
+					pass #a implimenter 
+	except:
 
-		#dire la liste et proposer de retirer des bails ou ajoutez ou rien
+		rhasspy.text_to_speech("Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
 
-		rhasspy.text_to_speech("a a a a a a a a ")
+		while True:
+
+			intent=rhasspy.speech_to_intent()
+
+			# si pas de message 
+			if intent["name"]=="":
+				rhasspy.text_to_speech("je n'ai rien entendu. Vous n'avez pas encore de liste de course. Voulez vous en creez une nouvelle ?")
+				continue
+
+			elif intent["name"]=="Oui":
+				rhasspy.text_to_speech("Nouvelle liste de course créée")
+				liste_course=[] #création d'une liste vide
+				print("Nouvelle liste de course créée")
+				print(liste_course)
+				liste_vide(liste_course)
+
+			elif intent["name"]=="Non":
+				leave()
+
+
+
 
 
 
 #################
 # BOUCLE GLOBAL #
 #################
+def main():
 
-op.opening()
+	op.opening()
+	
+	while True:
 
-while True:
+		sense.show_letter("?")
+		# Introduction énoncée
+		rhasspy.text_to_speech("Énoncez votre phrase, s'il vous plait.")
 
-	sense.show_letter("?")
-	# Introduction énoncée
-	rhasspy.text_to_speech("Énoncez votre phrase, s'il vous plait.")
+		# Réception d'une commande vocale et affichage du résultat.
+		intent = rhasspy.speech_to_intent()
+		#print(intent)
 
-	# Réception d'une commande vocale et affichage du résultat.
-	intent = rhasspy.speech_to_intent()
-	#print(intent)
+		if intent["name"] == "": # si pas de message 
+			rhasspy.text_to_speech("je n'ai rien entendu")
+			continue
 
-	if intent["name"] == "": # si pas de message 
-		rhasspy.text_to_speech("je n'ai rien entendu")
-		continue
+		else: 
 
-	else: 
+			# Enonce la commande vocale reçue et les variables.
+			if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course':
+				rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
+				print(intent["name"])
 
-		# Enonce la commande vocale reçue et les variables.
-		if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course':
-			rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
-			print(intent["name"])
+			elif intent["name"] == "Arret": # si cmd arret stop le programme
+				rhasspy.text_to_speech("Au revoir!")
+				cl.closing()
+				sense.clear()
+				quit()
 
-		elif intent["name"] == "Arret": # si cmd arret stop le programme
-			rhasspy.text_to_speech("Au revoir!")
-			cl.closing()
-			sense.clear()
-			quit()
-
-		else:
-			rhasspy.text_to_speech(f"Ceci n'est pas une commande valide")
+			else:
+				rhasspy.text_to_speech(f"Ceci n'est pas une commande valide")
 
 
-	if intent["name"] == 'Blague': 
-		blague()
-		
-	elif intent["name"] == 'Temperature':
-		temperature()
+		if intent["name"] == 'Blague': 
+			blague()
+			
+		elif intent["name"] == 'Temperature':
+			temperature()
 
-	elif intent["name"] == 'Course':
-		course()
+		elif intent["name"] == 'Course':
+			course()
+
+
+if __name__ == "__main__":
+	
+	main()
 
