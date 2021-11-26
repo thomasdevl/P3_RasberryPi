@@ -80,7 +80,7 @@ def temperature():
 
 def course():
 
-	#affiche une cerise C'EST MOCHE ---- A MODIF 
+	#affiche une cerise C'EST MOCHE ---- A MODIF (c'est pas vrai)
 	logo.cherry() # import du fichier logo.py affiche une cerise
 
 	# Ajoutez un item et sa quantité 
