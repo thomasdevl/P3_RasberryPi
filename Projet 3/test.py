@@ -8,13 +8,13 @@ import logo
 sense = SenseHat()
 
 # Lance l'apprentissage du fichier sentences.ini. Commentez cette partie si vous souhaitez ne pas le lancer 
-
+'''
 sense.show_letter("A")
 print("Lancement de l'apprentissage.")
 rhasspy.train_intent_files("/home/pi/sentences.ini") 
 print("Apprentissage terminé.")
 
-
+'''
 
 
 def blague():
@@ -56,6 +56,26 @@ def temperature():
 	 	sense.show_message(str(temperature), text_colour=[0, 255,0]) #texte en vert si il fait bon
 	 	rhasspy.text_to_speech(f"il fait bon dehors")
 
+
+def quantite(aliment): # renvoi le nombre dis par la personne 
+
+	while True:
+
+		rhasspy.text_to_speech(f"Quel quantité de {aliment} voulez vous rajoutez?")
+
+		intent = rhasspy.speech_to_intent()
+
+		# si pas de message 
+		if intent["name"]=="": 
+			continue
+
+		elif intent["name"]=="nombre":
+
+			print(intent["variables"]["nombre"])
+			return intent["variables"]["nombre"]
+
+
+
 def course():
 
 	#affiche une cerise
@@ -65,8 +85,36 @@ def course():
 	# retirer un item ou une quantité précise d'un item 
 	# lire la liste 
 
-
 	def add_items():
+		# rajouter un item puis rappeler la fonction add_items
+		rhasspy.text_to_speech("Quel aliment voulez vous ajoutez a la liste?")
+		while True:
+
+			intent=rhasspy.speech_to_intent()
+
+			if intent["name"] == "add_liste":
+				
+				#print(intent)
+				#rajoutez un aliment 
+				print(intent["variables"]["aliment"])
+
+				aliment = intent["variables"]["aliment"] #aliment a rajouter dans la liste
+				
+				#choisir la quantité à ajouté
+				quant = quantite(aliment) # renvoi le nombre a rajouté
+
+				#rajoute la quantité et l'aliment demandé 
+				liste_course.append([f"{aliment},{quant}"])
+				rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
+				print(liste_course)
+
+				course()
+				
+			else:
+				rhasspy.text_to_speech("je n'ai rien entendu. Quel aliment voulez vous ajoutez un item a la liste?")
+
+
+	def liste_vide():
 
 		if len(liste_course) < 1:
 			rhasspy.text_to_speech("Votre liste est vide. Voulez vous y rajoutez quelque chose?")
@@ -82,39 +130,13 @@ def course():
 				
 				# rajoutez un item 
 				elif intent["name"]=="Oui":
-					rhasspy.text_to_speech("Nouvelle liste de course créée")
+					add_items()
 					
-					# rajouter un item puis rappeler la fonction add_items
-					rhasspy.text_to_speech("Quel aliment voulez vous ajoutez un item a la liste?")
-					while True:
-
-						intent=rhasspy.speech_to_intent()
-
-						if intent["name"] == "add_liste":
-							
-							print(intent)
-							#rajoutez un aliment 
-							print(intent["legume"])
-							liste_course.append(intent["legume"])
-							
-							rhasspy.text_to_speech("{} a été rajouté a la liste ".format(intent["legume"]))
-
-							#choisir la quantité à ajouté 
-
-							
-						else:
-							rhasspy.text_to_speech("je n'ai rien entendu. Quel aliment voulez vous ajoutez un item a la liste?")
-							
-
 				# quitter la fonction
 				elif intent["name"]=="Non":
 					break
 		
-		else:
-			rhasspy.text_to_speech("Votre liste se compose de ....")
-			#code pour rajouter un item
 
-		
 	#verif si la liste existe
 	def is_list():
 	
@@ -126,6 +148,8 @@ def course():
 		except:
 
 			return False
+
+
 
 	if not is_list(): #si aucune liste existe
 
@@ -145,13 +169,16 @@ def course():
 					liste_course=[] #création d'une liste vide
 					print("Nouvelle liste de course créée")
 					print(liste_course)
-					add_items()
+					liste_vide()
 
 				elif intent["name"]=="Non":
 					break
 
 	else: #si une liste existe
-		rhasspy.text_to_speech("a a a a a a a ")
+
+		#dire la liste et proposer de retirer des bails ou ajoutez ou rien
+
+		rhasspy.text_to_speech("a a a a a a a. a ")
 		
 	
 
