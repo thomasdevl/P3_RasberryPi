@@ -122,7 +122,7 @@ def course():
 		'''
 
 		
-		rhasspy.text_to_speech("Quel aliment voulez vous ajoutez a la liste?")
+		rhasspy.text_to_speech("Quel alimant voulez vous ajoutez a la liste?")
 		while True:
 
 			intent=rhasspy.speech_to_intent()
@@ -199,7 +199,7 @@ def course():
 				#dmd si veut raouter un autre élement a la liste
 				while True:
 
-					rhasspy.text_to_speech("Voulez vous rajoutez un autre élément a la liste")
+					rhasspy.text_to_speech("Voulez vous rajoutez un autre alimant a la liste")
 
 					intent=rhasspy.speech_to_intent()
 
@@ -214,7 +214,7 @@ def course():
 						continue
 				
 			else:
-				rhasspy.text_to_speech("je n'ai rien entendu. Quel aliment voulez vous ajoutez a la liste?")
+				rhasspy.text_to_speech("je n'ai rien entendu. Quel alimant voulez vous ajoutez a la liste?")
 
 	def quantite_remove(aliment,liste_quant_alim,position):
 		'''
@@ -281,7 +281,7 @@ def course():
 
 	def remove_items():
 
-		rhasspy.text_to_speech("Quel aliment voulez vous retirer de la liste?")
+		rhasspy.text_to_speech("Quel alimant voulez vous retirer de la liste?")
 		while True:
 
 			intent=rhasspy.speech_to_intent()
@@ -346,7 +346,7 @@ def course():
 
 		while True:
 
-			rhasspy.text_to_speech("Vous avez une liste. Voulez ajoutez un aliment? Retirez un aliment ? Ou lire la liste?")
+			rhasspy.text_to_speech("Vous avez une liste. Voulez ajoutez un alimant? Retirez un alimant ? Ou lire la liste?")
 
 			intent=rhasspy.speech_to_intent()
 
