@@ -1,7 +1,6 @@
-
 ############################################################
-# 						  PaPi							   #	
-# 					  Code réalisé par 					   #	
+# 			    PaPi			   #	
+# 		      Code réalisé par 			   #	
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
 
