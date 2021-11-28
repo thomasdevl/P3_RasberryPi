@@ -1,3 +1,4 @@
+
 ############################################################
 # 			    PaPi			   #	
 # 		      Code réalisé par 			   #	
@@ -478,8 +479,13 @@ if __name__ == "__main__":
 		for line in file.readlines():
 			liste_course.append(line.rstrip())
 
-	print(liste_course)
+	# si le fichier est vide 
+	if liste_course[0] == '':
+		liste_course = []
 
+
+	print(liste_course)
+	
 
 	main()
 
