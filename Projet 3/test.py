@@ -1,7 +1,7 @@
 
 ############################################################
-# 			    PaPi			   #	
-# 		      Code réalisé par 			   #	
+# 						  PaPi							   #	
+# 					  Code réalisé par 					   #	
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
 
@@ -160,7 +160,17 @@ def course():
 						else:
 							rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
 
-						print(liste_course)
+						#print(liste_course)
+
+						#clear le file et y rajouter la liste mise a jour 
+
+						#retire tout ce qui est sur le fichier 
+						open('/home/pi/liste_course.txt', 'w').close() 
+
+						#retire tout ce qui est sur le fichier 
+						with open('/home/pi/liste_course.txt', 'w') as temp_file:
+						    for item in liste_course:
+						        temp_file.write("%s\n" % item)
 
 						#dis la liste de course
 						read_list()
@@ -190,13 +200,21 @@ def course():
 				else:
 					rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
 
-				
+				#clear le file et y rajouter la liste mise a jour 
+
+				#retire tout ce qui est sur le fichier 
+				open('/home/pi/liste_course.txt', 'w').close() 
+
+				#retire tout ce qui est sur le fichier 
+				with open('/home/pi/liste_course.txt', 'w') as temp_file:
+				    for item in liste_course:
+				        temp_file.write("%s\n" % item)
 
 				#dis la liste de course
 				read_list()
 
 
-				#dmd si veut raouter un autre élement a la liste
+				#dmd si veut rajouter un autre élement a la liste
 				while True:
 
 					rhasspy.text_to_speech("Voulez vous rajoutez un autre alimant a la liste")
@@ -243,7 +261,18 @@ def course():
 					new_quant = int(lst[0]) - int(nombre)
 					print(new_quant)
 					liste_course[position] = f"{new_quant} {aliment}"
-					print(liste_course)
+					#print(liste_course)
+
+					#clear le file et y rajouter la liste mise a jour 
+				
+					#retire tout ce qui est sur le fichier 
+					open('/home/pi/liste_course.txt', 'w').close() 
+
+					#retire tout ce qui est sur le fichier 
+					with open('/home/pi/liste_course.txt', 'w') as temp_file:
+					    for item in liste_course:
+					        temp_file.write("%s\n" % item)
+
 					read_list()
 
 
@@ -253,7 +282,18 @@ def course():
 					rhasspy.text_to_speech(f"Tous les {aliment} ont été retirer de la liste")
 					#supprime l'aliment de la liste
 					del liste_course[position]
-					print(liste_course)
+					#print(liste_course)
+
+					#clear le file et y rajouter la liste mise a jour 
+				
+					#retire tout ce qui est sur le fichier 
+					open('/home/pi/liste_course.txt', 'w').close() 
+
+					#retire tout ce qui est sur le fichier 
+					with open('/home/pi/liste_course.txt', 'w') as temp_file:
+					    for item in liste_course:
+					        temp_file.write("%s\n" % item)
+
 					read_list()
 
 				#dmd si veut retirer un autre élement de la liste
@@ -368,6 +408,14 @@ def course():
 
 
 
+##################
+#   CODE CARTE   #
+##################
+def code():
+
+	#afficher un cadenas
+	logo.locker_logo() # import du fichier logo.py affiche un cadenas
+
 
 
 
@@ -395,7 +443,7 @@ def main():
 		else: 
 
 			# Enonce la commande vocale reçue et les variables.
-			if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course':
+			if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course' or intent["name"] == 'Code':
 				rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
 				print(intent["name"])
 
@@ -418,10 +466,21 @@ def main():
 		elif intent["name"] == 'Course':
 			course()
 
+		elif intent["name"] == 'Code':
+			code()
+
 
 if __name__ == "__main__":
 
+	liste_course = []
 
-	liste_course = ['25 champignons', '40 poulet'] #création d'une liste de course vide 
+	#chargement de la liste a partir du fichier liste_course.txt
+	with open('/home/pi/liste_course.txt','r') as file:
+		for line in file.readlines():
+			liste_course.append(line.rstrip())
+
+	print(liste_course)
+
+
 	main()
 
