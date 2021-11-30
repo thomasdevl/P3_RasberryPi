@@ -1,7 +1,7 @@
 
 ############################################################
-# 			    PaPi			   #	
-# 		      Code réalisé par 			   #	
+# 						  PaPi							   #	
+# 					  Code réalisé par 					   #	
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
 
@@ -27,8 +27,8 @@ sense = SenseHat()
 '''sense.show_letter("A")
 print("Lancement de l'apprentissage.")
 rhasspy.train_intent_files("/home/pi/sentences.ini") 
-print("Apprentissage terminé.")
-'''
+print("Apprentissage terminé.")'''
+
 
 ##########
 # BLAGUE #
@@ -42,7 +42,9 @@ def blague():
 	list_blague = ["Que demande un footballeur à son coiffeur ? La coupe du monde s’il vous plait",
     	"C'est quoi une chauve-souris avec une perruque? Une souris.",
     	"Que fait une fraise sur un cheval ? Tagada Tagada",
-    	"C'est l'histoire de 2 patates qui traversent la route. L’une d’elles se fait écraser. L’autre dit : « Oh purée ! »"]
+    	"C'est l'histoire de 2 patates qui traversent la route. L’une d’elles se fait écraser. L’autre dit : « Oh purée ! »",
+    	"Allo ? C'est Jésus !– mais non ! mais si !",
+    	"Quel est le bar préféré des Espagnols ? Le Bar-celone"]
 
     #prend un blague au "hasard" de la liste et la dis 
 	blague = list_blague[random.randint(0, len(list_blague)-1)]
@@ -81,7 +83,6 @@ def temperature():
 ###################
 
 def course():
-
 	#affiche une cerise C'EST MOCHE ---- A MODIF 
 	logo.cherry() # import du fichier logo.py affiche une cerise
 
@@ -250,6 +251,9 @@ def course():
 				#si le nombre donné est plus petite 
 				if int(nombre) < int(lst[0]):
 
+					print(f"aliment : {aliment}")
+					print(f"nombre retirer : {nombre}")
+
 					rhasspy.text_to_speech(f"{nombre} {aliment} ont été retirer de la liste")
 
 					#remplacer dans la liste la valeur
@@ -397,17 +401,11 @@ def course():
 
 def code():
 
+	
+
 	#afficher un cadenas
 	logo.locker_logo() # import du fichier logo.py affiche un cadenas
-    
-    '''
-    1. Si aucun numero n’est enregistre, elle doit permettre d’enregistrer un nouveau numero 
-    (a l’aide du joystick et du microphone), puis le nouveau code.
-    2. Si un numero est deja enregistre, elle permet de tenter d’entrer le code,
-     et d’afficher et  enoncer le numero si celui-ci est correct.
-    3. Une fois le numero enonce et affiche, il peut etre detruit si souhaite 
-    (retour au point 1), ou conserve (retour au point 2).
-    '''
+
 
 	def leave():
 		'''
@@ -415,74 +413,85 @@ def code():
 		'''
 		main()
 
-    
-    #si pas de code dmd si on veut en creer un nouveau 
 
-    def new_code():
+	#si pas de code dmd si on veut en creer un nouveau 
 
-    	number_of_numbers = 0
+	def new_code():
 
-    	while number_of_numbers != 4:
+		logo.locker_logo()
 
-    		if number_of_numbers == 0:
-    			rhasspy.text_to_speech("Dites le premier numero du code a 4 chiffre")
+		print(f"nombre de chiffre dans le code: {len(code_carte)}")
 
-    		elif number_of_numbers == 1:
-    			rhasspy.text_to_speech("Dites le deuxième numero du code a 4 chiffre")
+		if len(code_carte) < 4:
 
-    		elif number_of_numbers == 2:
-    			rhasspy.text_to_speech("Dites le troisième numero du code a 4 chiffre")
+			while True:
 
-    		elif number_of_numbers == 3:
-    			rhasspy.text_to_speech("Dites le dernier numero du code a 4 chiffre")
+				if len(code_carte) == 0:
+					rhasspy.text_to_speech("Dites le premier numero du code a 4 chiffre")
 
-    		intent=rhasspy.speech_to_intent()
+				elif len(code_carte) == 1:
+					rhasspy.text_to_speech("Dites le deuxième numero du code a 4 chiffre")
+
+				elif len(code_carte) == 2:
+					rhasspy.text_to_speech("Dites le troisième numero du code a 4 chiffre")
+
+				elif len(code_carte) == 3:
+					rhasspy.text_to_speech("Dites le dernier numero du code a 4 chiffre")
+
+				intent = rhasspy.speech_to_intent()
 
 
-			if intent["name"] == "Code":
-
-				while True:
+				if intent["name"] == "nombre" and int(intent["variables"]["nombre"])<10:
 
 					rhasspy.text_to_speech("Le numéro que vous avez dis va s'afficher sur l'écran appuyer vers le haut pour le comfirmer et vers le bas pour le changer")
 
+					sense.clear()
+
 					chiffre = intent["variables"]["nombre"]
 
-					sense.show_letter(chiffre)
+					print(chiffre)
 
-					#recup les mouvements du joystick 
-					for event in sense.stick.get_events():
+					sense.show_letter(str(chiffre))
 
-						#numero validé par l'utilisateur 
-						if event.direction == 'up':
+					while True:
 
-							#rajoute le chiffre donné au mdp
-							code_carte += str(chiffre)
+						#recup les mouvements du joystick 
+						for event in sense.stick.get_events():
 
-							number_of_numbers += 1
+							#numero validé par l'utilisateur 
+							if event.direction == 'up':
 
-							new_code()
+								#rajoute le chiffre donné au mdp
+								code_carte.append(str(chiffre))
+
+								print(f"le code: {code_carte}")
+								
+								new_code()
 
 
-						#numero pas validé par l'utilisateur
-						elif event.direction == "down":
-							new_code()
+							#numero pas validé par l'utilisateur
+							elif event.direction == "down":
+
+								new_code()
 
 
-			# si pas de message ou mauvaise cmd
-			else:
-				rhasspy.text_to_speech("je n'ai rien entendu.")
-				continue
+				# si pas de message ou mauvaise cmd
+				else:
+					rhasspy.text_to_speech("je n'ai rien entendu ou le chiffre est trop grand")
+					continue
+
 
 
 		#avec les 4 nums hacher le code et le mettre sur un fichier
 
-		print(code_carte)
+		else:
+			print(" y 4 chiffres gros porc ")
 
 
 
-    if len(code_carte) == 0:
+	if len(code_carte) == 0:
 
-    	while True:
+		while True:
 
 			rhasspy.text_to_speech("Vous n'avez pas encore de code de carte enregistré. Voulez vous en enregistrez un ?")
 
@@ -531,7 +540,7 @@ def main():
 		else: 
 
 			# Enonce la commande vocale reçue et les variables.
-			if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course' or intent["name"] == 'Code':
+			if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course' or intent["name"] == 'CodeCarte':
 				rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
 				print(intent["name"])
 
@@ -554,7 +563,7 @@ def main():
 		elif intent["name"] == 'Course':
 			course()
 
-		elif intent["name"] == 'Code':
+		elif intent["name"] == 'CodeCarte':
 			code()
 
 
@@ -570,15 +579,14 @@ if __name__ == "__main__":
 	# si le fichier est vide 
 	if liste_course[0] == '':
 		liste_course = []
-        
-    #chargement du mdp a partir du fichier  + du mdp avec des mots + si le fichier est vide 
-    code_carte = "" #mdp hacher 
-    code_mot = ""
 
-    
+	#chargement du mdp a partir du fichier  + du mdp avec des mots + si le fichier est vide 
+	code_carte = [] #mdp hacher 
+	code_mot = ""
 
-    print(f"code_carte : {code_carte}")
-    print(f"code_mot : {code_mot}")
+
+	print(f"code_carte : {code_carte}")
+	print(f"code_mot : {code_mot}")
 	print(f"liste de course : {liste_course}")
 	
 
