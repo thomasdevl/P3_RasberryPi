@@ -5,13 +5,20 @@
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
 
-
+#pour le rasberry 
 import rhasspy
 from sense_hat import SenseHat
+
+#pour choisir un nmbr aléatoire
 import random
+
+#pour faire les animations sur l'écran LED
 import closing as cl
 import opening as op
 import logo
+
+#pour la fct code
+import crypto 
 
 sense = SenseHat()
 
@@ -69,14 +76,9 @@ def temperature():
 	 	sense.show_message(str(temperature), text_colour=[0, 255,0]) #texte en vert si il fait bon
 	 	rhasspy.text_to_speech(f"il fait bon dehors")
 
-
-
-
-
 ###################
 # LISTE DE COURSE #
 ###################
-
 
 def course():
 
@@ -100,9 +102,7 @@ def course():
 		'''
 
 		while True:
-
 			rhasspy.text_to_speech(f"Quel quantité de {aliment} voulez vous rajoutez?")
-
 			intent = rhasspy.speech_to_intent()
 
 			# si pas de message 
@@ -121,18 +121,15 @@ def course():
 		rajoute un item et sa quantité a la liste puis rappelle la fonction add_items
 		'''
 
-		
 		rhasspy.text_to_speech("Quel alimant voulez vous ajoutez a la liste?")
-		while True:
 
+		while True:
 			intent=rhasspy.speech_to_intent()
 
 			if intent["name"] == "add_liste":
 				
 				#print(intent)
 				#rajoutez un aliment 
-				
-
 				aliment = intent["variables"]["aliment"] #aliment a rajouter dans la liste
 
 				print(f"aliment : {aliment}")
@@ -213,7 +210,6 @@ def course():
 				#dis la liste de course
 				read_list()
 
-
 				#dmd si veut rajouter un autre élement a la liste
 				while True:
 
@@ -247,7 +243,6 @@ def course():
 
 			lst = liste_quant_alim.split()
 
-			 
 			if intent["name"]=="nombre":
 
 				nombre = intent["variables"]["nombre"]
@@ -274,7 +269,6 @@ def course():
 					        temp_file.write("%s\n" % item)
 
 					read_list()
-
 
 				#si le nombre est plus grand ou égal a la quantité dans la liste l'élement est retirer totalement de la liste
 				else:
@@ -313,11 +307,9 @@ def course():
 						rhasspy.text_to_speech("je n'ai rien entendu.")
 						continue
 
-
 			else:
 				rhasspy.text_to_speech("Je n'ai rien entendu")
 				continue
-
 
 	def remove_items():
 
@@ -325,7 +317,6 @@ def course():
 		while True:
 
 			intent=rhasspy.speech_to_intent()
-
 
 			#verifier si l'aliment est dans la liste de choix et dans la liste
 			if intent["name"] == "remove_liste":
@@ -336,7 +327,6 @@ def course():
 
 					if intent["variables"]["aliment"] in liste_course[i].split():
 
-
 						aliment = intent["variables"]["aliment"]
 						quantite_remove(aliment,liste_course[i],i)
 
@@ -346,12 +336,9 @@ def course():
 			else:
 				rhasspy.text_to_speech(f"je n'ai rien entendu")
 
-
-
 	def read_list():
 		'''
 		lis la liste de course
-
 		'''
 		rhasspy.text_to_speech("Votre liste est composé de :")
 		print(liste_course)
@@ -359,8 +346,6 @@ def course():
 		for i in liste_course:
 			rhasspy.text_to_speech(i) 
 
-		
-	
 	if len(liste_course) == 0: #si la liste est vide
 
 			rhasspy.text_to_speech("Votre liste de course est vide. Voulez vous y ajoutez quelque chose?")
@@ -406,16 +391,119 @@ def course():
 			else:
 				rhasspy.text_to_speech(f"Ceci n'est pas une commande valide")
 
-
-
 ##################
 #   CODE CARTE   #
 ##################
+
 def code():
 
 	#afficher un cadenas
 	logo.locker_logo() # import du fichier logo.py affiche un cadenas
+    
+    '''
+    1. Si aucun numero n’est enregistre, elle doit permettre d’enregistrer un nouveau numero 
+    (a l’aide du joystick et du microphone), puis le nouveau code.
+    2. Si un numero est deja enregistre, elle permet de tenter d’entrer le code,
+     et d’afficher et  enoncer le numero si celui-ci est correct.
+    3. Une fois le numero enonce et affiche, il peut etre detruit si souhaite 
+    (retour au point 1), ou conserve (retour au point 2).
+    '''
 
+	def leave():
+		'''
+		permet de retourner a la boucle global
+		'''
+		main()
+
+    
+    #si pas de code dmd si on veut en creer un nouveau 
+
+    def new_code():
+
+    	number_of_numbers = 0
+
+    	while number_of_numbers != 4:
+
+    		if number_of_numbers == 0:
+    			rhasspy.text_to_speech("Dites le premier numero du code a 4 chiffre")
+
+    		elif number_of_numbers == 1:
+    			rhasspy.text_to_speech("Dites le deuxième numero du code a 4 chiffre")
+
+    		elif number_of_numbers == 2:
+    			rhasspy.text_to_speech("Dites le troisième numero du code a 4 chiffre")
+
+    		elif number_of_numbers == 3:
+    			rhasspy.text_to_speech("Dites le dernier numero du code a 4 chiffre")
+
+    		intent=rhasspy.speech_to_intent()
+
+
+			if intent["name"] == "Code":
+
+				while True:
+
+					rhasspy.text_to_speech("Le numéro que vous avez dis va s'afficher sur l'écran appuyer vers le haut pour le comfirmer et vers le bas pour le changer")
+
+					chiffre = intent["variables"]["nombre"]
+
+					sense.show_letter(chiffre)
+
+					#recup les mouvements du joystick 
+					for event in sense.stick.get_events():
+
+						#numero validé par l'utilisateur 
+						if event.direction == 'up':
+
+							#rajoute le chiffre donné au mdp
+							code_carte += str(chiffre)
+
+							number_of_numbers += 1
+
+							new_code()
+
+
+						#numero pas validé par l'utilisateur
+						elif event.direction == "down":
+							new_code()
+
+
+			# si pas de message ou mauvaise cmd
+			else:
+				rhasspy.text_to_speech("je n'ai rien entendu.")
+				continue
+
+
+		#avec les 4 nums hacher le code et le mettre sur un fichier
+
+		print(code_carte)
+
+
+
+    if len(code_carte) == 0:
+
+    	while True:
+
+			rhasspy.text_to_speech("Vous n'avez pas encore de code de carte enregistré. Voulez vous en enregistrez un ?")
+
+			intent=rhasspy.speech_to_intent()
+
+			# si pas de message 
+			if intent["name"]=="":
+				rhasspy.text_to_speech("je n'ai rien entendu.")
+				continue
+
+			elif intent["name"]=="Oui":
+				print("Nouveau code de carte")
+				new_code()
+
+			elif intent["name"]=="Non":
+				leave()
+
+	# si deja un code propose de l'écouter avec le bon mdp 
+	else:
+
+		rhasspy.text_to_speech("Vous avez deja un code fdp")
 
 
 
@@ -482,9 +570,16 @@ if __name__ == "__main__":
 	# si le fichier est vide 
 	if liste_course[0] == '':
 		liste_course = []
+        
+    #chargement du mdp a partir du fichier  + du mdp avec des mots + si le fichier est vide 
+    code_carte = "" #mdp hacher 
+    code_mot = ""
 
+    
 
-	print(liste_course)
+    print(f"code_carte : {code_carte}")
+    print(f"code_mot : {code_mot}")
+	print(f"liste de course : {liste_course}")
 	
 
 	main()
