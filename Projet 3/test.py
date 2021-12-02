@@ -18,17 +18,18 @@ import opening as op
 import logo
 
 #pour la fct code
+import time
 import crypto 
 
 sense = SenseHat()
 
 # Lance l'apprentissage du fichier sentences.ini. Commentez cette partie si vous souhaitez ne pas le lancer 
-
-'''sense.show_letter("A")
+'''
+sense.show_letter("A")
 print("Lancement de l'apprentissage.")
 rhasspy.train_intent_files("/home/pi/sentences.ini") 
-print("Apprentissage terminé.")'''
-
+print("Apprentissage terminé.")
+'''
 
 ##########
 # BLAGUE #
@@ -375,7 +376,7 @@ def course():
 
 		while True:
 
-			rhasspy.text_to_speech("Vous avez une liste. Voulez ajoutez un alimant? Retirez un alimant ? Ou lire la liste?")
+			rhasspy.text_to_speech("Vous avez une liste. Voulez ajoutez un alimant? Retirez un alimant ? Ou lire la liste? Dites STOP pour retourner au menu")
 
 			intent=rhasspy.speech_to_intent()
 
@@ -392,6 +393,10 @@ def course():
 			elif intent["name"] == "retirer_liste":
 				remove_items() 
 
+			elif intent["name"] == "Stop":
+				main()
+
+
 			else:
 				rhasspy.text_to_speech(f"Ceci n'est pas une commande valide")
 
@@ -401,11 +406,8 @@ def course():
 
 def code():
 
-	
-
 	#afficher un cadenas
 	logo.locker_logo() # import du fichier logo.py affiche un cadenas
-
 
 	def leave():
 		'''
@@ -413,9 +415,7 @@ def code():
 		'''
 		main()
 
-
-	#si pas de code dmd si on veut en creer un nouveau 
-
+ 
 	def new_code():
 
 		logo.locker_logo()
@@ -449,47 +449,191 @@ def code():
 
 					chiffre = intent["variables"]["nombre"]
 
-					print(chiffre)
-
 					sense.show_letter(str(chiffre))
 
-					while True:
+					#récup le mouvement du joystick
+					event = sense.stick.wait_for_event(emptybuffer=True)
+					print("The joystick was {} {}".format(event.action, event.direction))
+					time.sleep(0.1)
 
-						#recup les mouvements du joystick 
-						for event in sense.stick.get_events():
+					#numero validé par l'utilisateur 
+					if event.direction == 'up': 
 
-							#numero validé par l'utilisateur 
-							if event.direction == 'up':
+						#rajoute le chiffre donné au mdp
+						code_carte.append(str(chiffre))
 
-								#rajoute le chiffre donné au mdp
-								code_carte.append(str(chiffre))
+						print(f"le code: {code_carte}")
+						
+						new_code()
 
-								print(f"le code: {code_carte}")
-								
-								new_code()
+					#numero pas validé par l'utilisateur
+					elif event.direction == "down":
 
+						new_code()
 
-							#numero pas validé par l'utilisateur
-							elif event.direction == "down":
-
-								new_code()
-
+					#si un autre mouvement du joystick
+					else:
+						new_code()
 
 				# si pas de message ou mauvaise cmd
 				else:
 					rhasspy.text_to_speech("je n'ai rien entendu ou le chiffre est trop grand")
 					continue
 
+		else:
+
+			#appel a la fct pour creer une suite de mot comme mdm
+			new_word_pass()
 
 
-		#avec les 4 nums hacher le code et le mettre sur un fichier
+	def read_list():
+
+		rhasspy.text_to_speech("Votre liste est composé de :")
+		print(liste_mot)
+
+		for i in liste_mot:
+			rhasspy.text_to_speech(i) 
+
+
+	def encrypt_mdp():
+
+		mdp_carte = ""
+
+		for i in code_carte:
+			mdp_carte += i
+
+		print(mdp_carte)
+
+		suite_mot = ""
+
+		for i in liste_mot:
+			suite_mot += i
+
+		print(suite_mot)
+
+		print(suite_mot)
+
+		suite_hacher = crypto.hashing(suite_mot)
+
+		# mettre la suite hacher sur un fichier 
+
+		#retire tout ce qui est sur le fichier 
+		open('/home/pi/liste_hach.txt', 'w').close() 
+
+		 
+		with open('/home/pi/liste_hach.txt', 'w') as temp_file:
+			temp_file.write(suite_hacher)
+
+		print(suite_hacher)
+
+
+		mdp_coder = crypto.encode(suite_mot,mdp_carte)
+		print(mdp_coder)
+
+		# mettre le mdp_coder dans un fichier 
+
+		#retire tout ce qui est sur le fichier 
+		open('/home/pi/carte_code.txt', 'w').close() 
+
+		 
+		with open('/home/pi/carte_code.txt', 'w') as temp_file:
+			temp_file.write(mdp_coder)
+
+		#retour au menu qd fini
+		main()
+
+
+	def new_word_pass():
+		'''
+		créer un nv mdp avec des mots commun pour trouver le code de la carte bancaire 
+		'''
+		rhasspy.text_to_speech("Quelle suite de mot minimum voulez vous utilisez pour retrouver le mot de passe?")
+
+		while True:
+
+			rhasspy.text_to_speech("Dites votre mot et dites STOP quand vous avez assez de mot")
+
+			intent = rhasspy.speech_to_intent()
+
+			if intent["name"] == "add_liste":
+
+				#aliment a rajouter 
+				aliment = intent["variables"]["aliment"]
+
+				liste_mot.append(aliment)
+				rhasspy.text_to_speech(f"{aliment} a été rajouté a votre mot de passe")
+				read_list()
+				continue
+
+			elif intent["name"] == "Stop":
+
+
+				# si le mdp n'est pas assez long
+				if len(liste_mot) < 3:
+					rhasspy.text_to_speech("Votre mot de passe n'est pas assez long")
+					continue
+
+				else:
+					rhasspy.text_to_speech("Fin du mot de passe")
+					read_list()
+					encrypt_mdp()
+
+			else:
+				rhasspy.text_to_speech("Je n'ai rien entendu")
+				continue
+
+
+	def fichier_vide():
+
+		mot = ""
+
+		with open('/home/pi/carte_code.txt', 'r') as temp_file:
+			for line in temp_file.readlines():
+				mot += line.rstrip()
+
+			if len(mot) == 0:
+				return True
+			else:
+				return False
+
+	def decrypt_mdp():
+
+		suite_mot = ""
+
+		for i in liste_mot:
+			suite_mot += i
+
+		#hacher le input du user
+		suite_hacher = crypto.hashing(suite_mot)
+
+		#recup le hach sur le fichier
+
+		hach_file = ""
+
+		with open('/home/pi/liste_hach.txt', 'r') as temp_file:
+			for line in temp_file.readlines():
+				hach_file += line.rstrip()
+
+		#si le bon mdp		
+		if suite_hacher == hach_file:
+
+			carte_coder = ""
+
+			with open('/home/pi/carte_code.txt', 'r') as temp_file:
+				for line in temp_file.readlines():
+					carte_coder += line.rstrip()
+
+			mdp = crypto.decode(suite_mot,carte_coder)
+
+			rhasspy.text_to_speech(f"Votre mot de passe est {mdp}")
+			main()
 
 		else:
-			print(" y 4 chiffres gros porc ")
+			rhasspy.text_to_speech(f"Mauvais mot de passe")
+			main()
 
 
-
-	if len(code_carte) == 0:
+	if fichier_vide():
 
 		while True:
 
@@ -512,8 +656,42 @@ def code():
 	# si deja un code propose de l'écouter avec le bon mdp 
 	else:
 
-		rhasspy.text_to_speech("Vous avez deja un code fdp")
+		rhasspy.text_to_speech("Vous avez un code de carte enregistré.")
 
+		liste_mot.clear()
+
+		while True:
+
+			rhasspy.text_to_speech("Dites votre mot et dites STOP quand vous avez assez de mot")
+
+			intent = rhasspy.speech_to_intent()
+
+			if intent["name"] == "add_liste":
+
+				#aliment a rajouter 
+				aliment = intent["variables"]["aliment"]
+
+				liste_mot.append(aliment)
+				rhasspy.text_to_speech(f"{aliment} a été rajouté a votre mot de passe")
+				read_list()
+				continue
+
+			elif intent["name"] == "Stop":
+
+
+				# si le mdp n'est pas assez long
+				if len(liste_mot) < 3:
+					rhasspy.text_to_speech("Votre mot de passe n'est pas assez long")
+					continue
+
+				else:
+					rhasspy.text_to_speech("Fin du mot de passe")
+					read_list()
+					decrypt_mdp()
+
+			else:
+				rhasspy.text_to_speech("Je n'ai rien entendu")
+				continue
 
 
 #################
@@ -564,10 +742,14 @@ def main():
 			course()
 
 		elif intent["name"] == 'CodeCarte':
+			code_carte.clear()
+			liste_mot.clear()
 			code()
 
 
 if __name__ == "__main__":
+
+	sense.low_light = True
 
 	liste_course = []
 
@@ -581,12 +763,12 @@ if __name__ == "__main__":
 		liste_course = []
 
 	#chargement du mdp a partir du fichier  + du mdp avec des mots + si le fichier est vide 
-	code_carte = [] #mdp hacher 
-	code_mot = ""
+	code_carte = [] 
+	liste_mot = []
 
 
-	print(f"code_carte : {code_carte}")
-	print(f"code_mot : {code_mot}")
+
+
 	print(f"liste de course : {liste_course}")
 	
 
