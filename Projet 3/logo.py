@@ -24,7 +24,7 @@ def smiley():
 
     logo = [
     O, O, O, Y, Y, O, O, O,
-    O, Y, Y, Y, Y, Y, O, O,
+    O, O, Y, Y, Y, Y, O, O,
     O, Y, P, Y, Y, P, Y, O,
     Y, Y, Y, Y, Y, Y, Y, Y,
     Y, B, Y, Y, Y, Y, B, Y,
@@ -47,7 +47,7 @@ def thermostat():
 	O, O, O, W, W, O, O, O,
 	O, O, O, W, O, O, O, O,
 	O, O, O, W, W, O, O, O,
-	O, O, O, R, R, W, O, O,
+	O, O, W, R, R, W, O, O,
 	O, O, W, R, R, W, O, O,
 	O, O, O, W, W, O, O, O,
 	]
@@ -84,3 +84,39 @@ def locker_logo():
     O, Y, Y, Y, Y, Y, Y, O,
     ]
     sense.set_pixels(logo)
+
+def green_tick():
+
+    G = green
+    O = nothing
+
+    logo = [
+    O, O, O, O, O, O, O, O,
+    O, O, O, O, O, O, O, O,
+    O, O, G, O, O, G, O, O,
+    O, O, O, O, O, O, O, O,
+    O, O, O, O, O, O, O, O,
+    O, O, G, O, O, G, O, O,
+    O, O, O, G, G, O, O, O,
+    O, O, O, O, O, O, O, O,
+    ]
+    sense.set_pixels(logo)
+
+def red_cross():
+
+    R = red
+    O = nothing
+    
+    logo = [
+    O, O, O, O, O, O, O, O,
+    O, O, O, O, O, O, O, O,
+    O, O, R, O, O, R, O, O,
+    O, O, O, O, O, O, O, O,
+    O, O, O, O, O, O, O, O,
+    O, O, O, O, O, O, O, O,
+    O, O, O, R, R, O, O, O,
+    O, O, R, O, O, R, O, O,
+    ]
+    sense.set_pixels(logo)
+
+
