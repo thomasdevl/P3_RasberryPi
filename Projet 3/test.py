@@ -1,7 +1,7 @@
 
 ############################################################
-# 			    PaPi			   #	
-# 		      Code réalisé par 			   #	
+# 						  PaPi							   #	
+# 					  Code réalisé par 					   #	
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
 
@@ -415,70 +415,67 @@ def code():
 		'''
 		main()
 
- 
+	def code_joystick():
+		
+		if len(code_carte) < 4:
+
+
+			num = 0
+		
+			sense.clear()
+			sense.show_letter(str(num))
+
+
+			while True:
+
+				#recup les mouvements du joystick 
+				event = sense.stick.wait_for_event(emptybuffer=True)
+				time.sleep(0.3)
+		
+				#+1
+				if event.direction == 'up':
+		
+					if num <9:
+						num += 1
+					else:
+						num = 0
+		
+					sense.show_letter(str(num))
+
+				#-1
+				elif event.direction == "down":
+		
+					if num > 0:
+						num -= 1
+		
+					else:
+						num = 9
+		
+					sense.show_letter(str(num))
+		
+
+				#comfirmer
+				elif event.direction == "middle":
+					code_carte.append(str(num))
+					code_joystick()
+
+		else:
+			new_code()
+
+
 	def new_code():
 
 		logo.locker_logo()
 
 		print(f"nombre de chiffre dans le code: {len(code_carte)}")
 
+
 		if len(code_carte) < 4:
 
-			while True:
+			rhasspy.text_to_speech("entrez votre mot de passe a l'aide du joystick Haut et bas pour augmenter ou diminuer le chiffre et a appuyer au centre pour passer au chiffre suivant")
 
-				if len(code_carte) == 0:
-					rhasspy.text_to_speech("Dites le premier numero du code a 4 chiffre")
+			code_joystick()
 
-				elif len(code_carte) == 1:
-					rhasspy.text_to_speech("Dites le deuxième numero du code a 4 chiffre")
-
-				elif len(code_carte) == 2:
-					rhasspy.text_to_speech("Dites le troisième numero du code a 4 chiffre")
-
-				elif len(code_carte) == 3:
-					rhasspy.text_to_speech("Dites le dernier numero du code a 4 chiffre")
-
-				intent = rhasspy.speech_to_intent()
-
-
-				if intent["name"] == "nombre" and int(intent["variables"]["nombre"])<10:
-
-					rhasspy.text_to_speech("Le numéro que vous avez dis va s'afficher sur l'écran appuyer vers le haut pour le comfirmer et vers le bas pour le changer")
-
-					sense.clear()
-
-					chiffre = intent["variables"]["nombre"]
-
-					sense.show_letter(str(chiffre))
-
-					#récup le mouvement du joystick
-					event = sense.stick.wait_for_event(emptybuffer=True)
-					print("The joystick was {} {}".format(event.action, event.direction))
-					time.sleep(0.1)
-
-					#numero validé par l'utilisateur 
-					if event.direction == 'up': 
-
-						#rajoute le chiffre donné au mdp
-						code_carte.append(str(chiffre))
-
-						print(f"le code: {code_carte}")
-						
-						new_code()
-
-					#numero pas validé par l'utilisateur
-					elif event.direction == "down":
-
-						new_code()
-
-					#si un autre mouvement du joystick
-					else:
-						new_code()
-
-				# si pas de message ou mauvaise cmd
-				else:
-					rhasspy.text_to_speech("je n'ai rien entendu ou le chiffre est trop grand")
-					continue
 
 		else:
 
@@ -488,7 +485,7 @@ def code():
 
 	def read_list():
 
-		rhasspy.text_to_speech("Votre liste est composé de :")
+		rhasspy.text_to_speech("Votre mot de passe est composé de :")
 		print(liste_mot)
 
 		for i in liste_mot:
@@ -547,7 +544,7 @@ def code():
 		'''
 		créer un nv mdp avec des mots commun pour trouver le code de la carte bancaire 
 		'''
-		rhasspy.text_to_speech("Quelle suite de mot minimum voulez vous utilisez pour retrouver le mot de passe?")
+		rhasspy.text_to_speech("Quelle suite de mot voulez vous utilisez pour retrouver le mot de passe?")
 
 		while True:
 
@@ -617,6 +614,9 @@ def code():
 		#si le bon mdp		
 		if suite_hacher == hach_file:
 
+			#afficher un sourire vert 
+			logo.green_tick()
+
 			carte_coder = ""
 
 			with open('/home/pi/carte_code.txt', 'r') as temp_file:
@@ -625,10 +625,17 @@ def code():
 
 			mdp = crypto.decode(suite_mot,carte_coder)
 
+			time.sleep(1)
+
 			rhasspy.text_to_speech(f"Votre mot de passe est {mdp}")
 			main()
 
 		else:
+
+			#afficher un sourire rouge
+			logo.red_cross()
+
+			time.sleep(1)
 			rhasspy.text_to_speech(f"Mauvais mot de passe")
 			main()
 
@@ -693,10 +700,10 @@ def code():
 				rhasspy.text_to_speech("Je n'ai rien entendu")
 				continue
 
-
 #################
 # BOUCLE GLOBAL #
 #################
+
 def main():
 
 	op.opening()
@@ -722,7 +729,7 @@ def main():
 				rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
 				print(intent["name"])
 
-			elif intent["name"] == "Arret": # si cmd arret stop le programme
+			elif intent["name"] == "Arret" or intent["name"] == "Stop": # si cmd arret stop le programme
 				rhasspy.text_to_speech("Au revoir!")
 				cl.closing()
 				sense.clear()
