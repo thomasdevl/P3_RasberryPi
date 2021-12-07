@@ -5,7 +5,6 @@
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
 
-
 #pour le rasberry 
 import rhasspy
 from sense_hat import SenseHat
@@ -29,8 +28,8 @@ sense = SenseHat()
 sense.show_letter("A")
 print("Lancement de l'apprentissage.")
 rhasspy.train_intent_files("/home/pi/sentences.ini") 
-print("Apprentissage terminé.")
-'''
+print("Apprentissage terminé.")'''
+
 
 ##########
 # BLAGUE #
@@ -80,12 +79,26 @@ def temperature():
 	 	sense.show_message(str(temperature), text_colour=[0, 255,0]) #texte en vert si il fait bon
 	 	rhasspy.text_to_speech(f"il fait bon dehors")
 
+################
+# PILE OU FACE #
+################
+
+def pile_face():
+
+	choix = ['pile','face']
+
+	pile_ou_face = choix[random.randint(0,1)]
+
+	rhasspy.text_to_speech(pile_ou_face)
+
+	sense.show_message(pile_ou_face)
+
 ###################
 # LISTE DE COURSE #
 ###################
 
 def course():
-	#affiche une cerise C'EST MOCHE ---- A MODIF 
+	#affiche une cerise
 	logo.cherry() # import du fichier logo.py affiche une cerise
 
 	# Ajoutez un item et sa quantité 
@@ -178,28 +191,34 @@ def course():
 						#dis la liste de course
 						read_list()
 
-					# si l'aliment n'est pas déjà dans la liste
-					else: 
+						#recurrence
+						add_items()
 
-						#rajoute la quantité et l'aliment si il ne sont pas dans la liste
-						liste_course.append(f"{quant} {aliment}")
-						if int(quant) > 1:
-							rhasspy.text_to_speech(f"{quant}{aliment} ont été rajouté a la liste ")
-						else:
-							rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
+				
+				# si l'aliment n'est pas déjà dans la liste
+			
+				#rajoute la quantité et l'aliment si il ne sont pas dans la liste
+				liste_course.append(f"{quant} {aliment}")
+				if int(quant) > 1:
+					rhasspy.text_to_speech(f"{quant}{aliment} ont été rajouté a la liste ")
+				else:
+					rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
 
-						#clear le file et y rajouter la liste mise a jour 
+				#clear le file et y rajouter la liste mise a jour 
 
-						#retire tout ce qui est sur le fichier 
-						open('/home/pi/liste_course.txt', 'w').close() 
+				#retire tout ce qui est sur le fichier 
+				open('/home/pi/liste_course.txt', 'w').close() 
 
-						#rajoute la liste sur le fichier  
-						with open('/home/pi/liste_course.txt', 'w') as temp_file:
-						    for item in liste_course:
-						        temp_file.write("%s\n" % item)
+				#rajoute la liste sur le fichier  
+				with open('/home/pi/liste_course.txt', 'w') as temp_file:
+				    for item in liste_course:
+				        temp_file.write("%s\n" % item)
 
-						#dis la liste de course
-						read_list()
+				#dis la liste de course
+				read_list()
+
+				#recurrence
+				add_items()
 
 			elif intent["name"] == "Stop":
 				main()
@@ -282,7 +301,7 @@ def course():
 
 	def remove_items():
 
-		rhasspy.text_to_speech("Quel alimant voulez vous retirer de la liste? ou dites Stop pour retourner au menu")
+		rhasspy.text_to_speech("Quel alimant voulez vous retirer de la liste? ou dites Stop pour retourner au menu. Ou dites effacer la liste pour tout effacer")
 		while True:
 
 			intent=rhasspy.speech_to_intent()
@@ -301,6 +320,21 @@ def course():
 
 				rhasspy.text_to_speech(f"Vous n'avez pas de {ali} dans votre liste")
 				continue
+
+			elif intent["name"] == "SupListe":
+
+				rhasspy.text_to_speech("Votre liste a été supprimée")
+
+				
+				liste_course.clear()
+
+				#retire tout ce qui est sur le fichier 
+				open('/home/pi/liste_course.txt', 'w').close() 
+
+				print(liste_course)
+
+				main()
+
 
 			elif intent["name"] == "Stop":
 				main()
@@ -581,7 +615,7 @@ def code():
 			time.sleep(1)
 
 			rhasspy.text_to_speech(f"Votre mot de passe est {mdp}")
-			main()
+			destroy()
 
 		else:
 
@@ -591,6 +625,34 @@ def code():
 			time.sleep(1)
 			rhasspy.text_to_speech(f"Mauvais mot de passe")
 			main()
+
+	def destroy():
+		
+		while True:
+
+			rhasspy.text_to_speech(f"Voulez vous effacer le mot de passe?")
+
+			intent=rhasspy.speech_to_intent()
+
+			if intent["name"]=="Oui":
+
+				#retire tout ce qui est sur le fichier 
+				open('/home/pi/carte_code.txt', 'w').close()
+
+				#retire tout ce qui est sur le fichier 
+				open('/home/pi/liste_hach.txt', 'w').close()  
+
+				rhasspy.text_to_speech(f"Code effacé")
+
+				print("Code effacé")
+
+				main()
+
+			elif intent["name"]=="Non":
+				main()
+
+
+
 
 
 	if fichier_vide():
@@ -677,7 +739,7 @@ def main():
 		else: 
 
 			# Enonce la commande vocale reçue et les variables.
-			if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course' or intent["name"] == 'CodeCarte':
+			if intent["name"] == 'Blague' or intent["name"] == 'Temperature' or intent["name"] == 'Course' or intent["name"] == 'CodeCarte' or intent['name'] == 'PileFace':
 				rhasspy.text_to_speech("Vous avez lancé la commande {} ".format(intent["name"]))
 				print(intent["name"])
 
@@ -705,10 +767,13 @@ def main():
 			liste_mot.clear()
 			code()
 
+		elif intent["name"] == 'PileFace':
+			pile_face()
+
 
 if __name__ == "__main__":
 
-	sense.low_light = True
+	sense.low_light = False
 
 	liste_course = []
 
@@ -725,9 +790,7 @@ if __name__ == "__main__":
 	code_carte = [] 
 	liste_mot = []
 
-
 	print(f"liste de course : {liste_course}")
 	
-
 	main()
 
