@@ -1,9 +1,10 @@
 
 ############################################################
-# 						  PaPi							   #	
-# 					  Code réalisé par 					   #	
+# 			    PaPi			   #	
+# 		      Code réalisé par 			   #	
 # Thomas Devlamminck, Dylan Mainghain et  Andrea Dalmasso  #
 ############################################################
+
 
 #pour le rasberry 
 import rhasspy
@@ -107,11 +108,12 @@ def course():
 			rhasspy.text_to_speech(f"Quel quantité de {aliment} voulez vous rajoutez?")
 			intent = rhasspy.speech_to_intent()
 
-			# si pas de message 
+			
 			if intent["name"]=="nombre":
 
 				return intent["variables"]["nombre"]
 
+			# si pas de message 
 			else:
 				rhasspy.text_to_speech("Je n'ai rien entendu")
 				continue
@@ -123,9 +125,10 @@ def course():
 		rajoute un item et sa quantité a la liste puis rappelle la fonction add_items
 		'''
 
-		rhasspy.text_to_speech("Quel alimant voulez vous ajoutez a la liste?")
-
 		while True:
+
+			rhasspy.text_to_speech("Quel alimant voulez vous ajoutez a la liste? ou dites STOP pour retourner au menu")
+
 			intent=rhasspy.speech_to_intent()
 
 			if intent["name"] == "add_liste":
@@ -145,6 +148,7 @@ def course():
 
 				for i in range(len(liste_course)):
 
+					# si l'aliment est déja dans la liste 
 					if intent["variables"]["aliment"] in liste_course[i].split():
 
 						rhasspy.text_to_speech(f"Vous avez déjà {aliment} dans votre liste")
@@ -166,7 +170,7 @@ def course():
 						#retire tout ce qui est sur le fichier 
 						open('/home/pi/liste_course.txt', 'w').close() 
 
-						#retire tout ce qui est sur le fichier 
+						#rajoute la liste sur le fichier 
 						with open('/home/pi/liste_course.txt', 'w') as temp_file:
 						    for item in liste_course:
 						        temp_file.write("%s\n" % item)
@@ -174,63 +178,34 @@ def course():
 						#dis la liste de course
 						read_list()
 
-						#dmd si veut rajouter un autre élement a la liste
-						while True:
+					# si l'aliment n'est pas déjà dans la liste
+					else: 
 
-							rhasspy.text_to_speech("Voulez vous rajoutez un autre élément a la liste")
+						#rajoute la quantité et l'aliment si il ne sont pas dans la liste
+						liste_course.append(f"{quant} {aliment}")
+						if int(quant) > 1:
+							rhasspy.text_to_speech(f"{quant}{aliment} ont été rajouté a la liste ")
+						else:
+							rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
 
-							intent=rhasspy.speech_to_intent()
+						#clear le file et y rajouter la liste mise a jour 
 
-							if intent["name"] == "Oui":
-								add_items()
+						#retire tout ce qui est sur le fichier 
+						open('/home/pi/liste_course.txt', 'w').close() 
 
-							elif intent["name"] == "Non":
-								leave()
+						#rajoute la liste sur le fichier  
+						with open('/home/pi/liste_course.txt', 'w') as temp_file:
+						    for item in liste_course:
+						        temp_file.write("%s\n" % item)
 
-							elif intent["name"] == "":
-								rhasspy.text_to_speech("je n'ai rien entendu.")
-								continue
+						#dis la liste de course
+						read_list()
 
+			elif intent["name"] == "Stop":
+				main()
 
-				#rajoute la quantité et l'aliment si il ne sont pas dans la liste
-				liste_course.append(f"{quant} {aliment}")
-				if int(quant) > 1:
-					rhasspy.text_to_speech(f"{quant}{aliment} ont été rajouté a la liste ")
-				else:
-					rhasspy.text_to_speech(f"{quant}{aliment} a été rajouté a la liste ")
-
-				#clear le file et y rajouter la liste mise a jour 
-
-				#retire tout ce qui est sur le fichier 
-				open('/home/pi/liste_course.txt', 'w').close() 
-
-				#retire tout ce qui est sur le fichier 
-				with open('/home/pi/liste_course.txt', 'w') as temp_file:
-				    for item in liste_course:
-				        temp_file.write("%s\n" % item)
-
-				#dis la liste de course
-				read_list()
-
-				#dmd si veut rajouter un autre élement a la liste
-				while True:
-
-					rhasspy.text_to_speech("Voulez vous rajoutez un autre alimant a la liste")
-
-					intent=rhasspy.speech_to_intent()
-
-					if intent["name"] == "Oui":
-						add_items()
-
-					elif intent["name"] == "Non":
-						leave()
-
-					elif intent["name"] == "":
-						rhasspy.text_to_speech("je n'ai rien entendu.")
-						continue
-				
 			else:
-				rhasspy.text_to_speech("je n'ai rien entendu. Quel alimant voulez vous ajoutez a la liste?")
+				rhasspy.text_to_speech("je n'ai rien entendu")
 
 	def quantite_remove(aliment,liste_quant_alim,position):
 		'''
@@ -268,12 +243,15 @@ def course():
 					#retire tout ce qui est sur le fichier 
 					open('/home/pi/liste_course.txt', 'w').close() 
 
-					#retire tout ce qui est sur le fichier 
+					#rajouter la liste mise a jour sur le fichier 
 					with open('/home/pi/liste_course.txt', 'w') as temp_file:
 					    for item in liste_course:
 					        temp_file.write("%s\n" % item)
 
 					read_list()
+
+					#retour a la fonction de base
+					remove_items()
 
 				#si le nombre est plus grand ou égal a la quantité dans la liste l'élement est retirer totalement de la liste
 				else:
@@ -288,29 +266,15 @@ def course():
 					#retire tout ce qui est sur le fichier 
 					open('/home/pi/liste_course.txt', 'w').close() 
 
-					#retire tout ce qui est sur le fichier 
+					#rajoute la liste sur le fichier  
 					with open('/home/pi/liste_course.txt', 'w') as temp_file:
 					    for item in liste_course:
 					        temp_file.write("%s\n" % item)
 
 					read_list()
 
-				#dmd si veut retirer un autre élement de la liste
-				while True:
-
-					rhasspy.text_to_speech("Voulez vous retirer un autre élément de la liste")
-
-					intent=rhasspy.speech_to_intent()
-
-					if intent["name"] == "Oui":
-						remove_items()
-
-					elif intent["name"] == "Non":
-						leave()
-
-					elif intent["name"] == "":
-						rhasspy.text_to_speech("je n'ai rien entendu.")
-						continue
+					#retour a la fonction de base
+					remove_items()
 
 			else:
 				rhasspy.text_to_speech("Je n'ai rien entendu")
@@ -318,7 +282,7 @@ def course():
 
 	def remove_items():
 
-		rhasspy.text_to_speech("Quel alimant voulez vous retirer de la liste?")
+		rhasspy.text_to_speech("Quel alimant voulez vous retirer de la liste? ou dites Stop pour retourner au menu")
 		while True:
 
 			intent=rhasspy.speech_to_intent()
@@ -337,6 +301,10 @@ def course():
 
 				rhasspy.text_to_speech(f"Vous n'avez pas de {ali} dans votre liste")
 				continue
+
+			elif intent["name"] == "Stop":
+				main()
+
 
 			else:
 				rhasspy.text_to_speech(f"je n'ai rien entendu")
@@ -419,12 +387,10 @@ def code():
 		
 		if len(code_carte) < 4:
 
-
 			num = 0
 		
 			sense.clear()
 			sense.show_letter(str(num))
-
 
 			while True:
 
@@ -453,7 +419,6 @@ def code():
 		
 					sense.show_letter(str(num))
 		
-
 				#comfirmer
 				elif event.direction == "middle":
 					code_carte.append(str(num))
@@ -462,26 +427,20 @@ def code():
 		else:
 			new_code()
 
-
 	def new_code():
 
 		logo.locker_logo()
-
 		print(f"nombre de chiffre dans le code: {len(code_carte)}")
-
 
 		if len(code_carte) < 4:
 
 			rhasspy.text_to_speech("entrez votre mot de passe a l'aide du joystick Haut et bas pour augmenter ou diminuer le chiffre et a appuyer au centre pour passer au chiffre suivant")
-
 			code_joystick()
-
 
 		else:
 
 			#appel a la fct pour creer une suite de mot comme mdm
 			new_word_pass()
-
 
 	def read_list():
 
@@ -490,7 +449,6 @@ def code():
 
 		for i in liste_mot:
 			rhasspy.text_to_speech(i) 
-
 
 	def encrypt_mdp():
 
@@ -508,8 +466,6 @@ def code():
 
 		print(suite_mot)
 
-		print(suite_mot)
-
 		suite_hacher = crypto.hashing(suite_mot)
 
 		# mettre la suite hacher sur un fichier 
@@ -517,12 +473,11 @@ def code():
 		#retire tout ce qui est sur le fichier 
 		open('/home/pi/liste_hach.txt', 'w').close() 
 
-		 
+		#rajoute la liste de mot hacher sur le fichier 
 		with open('/home/pi/liste_hach.txt', 'w') as temp_file:
 			temp_file.write(suite_hacher)
 
 		print(suite_hacher)
-
 
 		mdp_coder = crypto.encode(suite_mot,mdp_carte)
 		print(mdp_coder)
@@ -532,13 +487,12 @@ def code():
 		#retire tout ce qui est sur le fichier 
 		open('/home/pi/carte_code.txt', 'w').close() 
 
-		 
+		#rajoute le code de carte codé sur le fichier
 		with open('/home/pi/carte_code.txt', 'w') as temp_file:
 			temp_file.write(mdp_coder)
 
 		#retour au menu qd fini
 		main()
-
 
 	def new_word_pass():
 		'''
@@ -578,7 +532,6 @@ def code():
 			else:
 				rhasspy.text_to_speech("Je n'ai rien entendu")
 				continue
-
 
 	def fichier_vide():
 
@@ -685,7 +638,6 @@ def code():
 
 			elif intent["name"] == "Stop":
 
-
 				# si le mdp n'est pas assez long
 				if len(liste_mot) < 3:
 					rhasspy.text_to_speech("Votre mot de passe n'est pas assez long")
@@ -772,8 +724,6 @@ if __name__ == "__main__":
 	#chargement du mdp a partir du fichier  + du mdp avec des mots + si le fichier est vide 
 	code_carte = [] 
 	liste_mot = []
-
-
 
 
 	print(f"liste de course : {liste_course}")
