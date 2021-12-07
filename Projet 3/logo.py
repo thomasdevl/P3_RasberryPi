@@ -12,6 +12,7 @@ nothing = (0,0,0)
 pink = (255,105, 180)
 grey = (95,95,95)
 brown = (139,69,19)
+light_green = (144,238,144)
 
 def smiley():
 	#fait un smile 
@@ -57,15 +58,18 @@ def cherry():
     R = red
     B = brown
     O = nothing
+    G = green
+    W = white
+    
     logo = [
-    O, O, O, O, B, O, O, O,
-    O, O, O, O, B, O, O, O,
-    O, O, O, B, O, B, O, O,
-    O, O, R, O, O, B, O, O,
-    O, R, R, R, O, R, O, O,
-    O, O, R, O, R, R, R, O,
-    O, O, O, O, O, R, O, O,
-    O, O, O, O, O, O, O, O,
+    O, O, O, O, G, G, G, O,
+    O, O, O, G, O, G, O, O,
+    O, O, G, O, O, G, O, O,
+    O, O, G, O, O, R, R, O,
+    O, R, R, O, R, R, W, R,
+    R, R, W, R, O, R, R, R,
+    R, R, R, R, O, R, R, O,
+    O, R, R, O, O, O, O, O,
     ]
     sense.set_pixels(logo)
 
@@ -87,17 +91,18 @@ def locker_logo():
 
 def green_tick():
 
+    g = light_green
     G = green
     O = nothing
 
     logo = [
     O, O, O, O, O, O, O, O,
-    O, O, O, O, O, O, O, O,
-    O, O, G, O, O, G, O, O,
-    O, O, O, O, O, O, O, O,
-    O, O, O, O, O, O, O, O,
-    O, O, G, O, O, G, O, O,
-    O, O, O, G, G, O, O, O,
+    O, O, O, O, O, O, g, O,
+    O, O, O, O, O, g, G, O,
+    O, O, O, O, O, g, G, O,
+    O, G, g, O, g, G, O, O,
+    O, O, G, g, G, O, O, O,
+    O, O, O, G, O, O, O, O,
     O, O, O, O, O, O, O, O,
     ]
     sense.set_pixels(logo)
@@ -108,14 +113,14 @@ def red_cross():
     O = nothing
     
     logo = [
-    O, O, O, O, O, O, O, O,
-    O, O, O, O, O, O, O, O,
-    O, O, R, O, O, R, O, O,
-    O, O, O, O, O, O, O, O,
-    O, O, O, O, O, O, O, O,
-    O, O, O, O, O, O, O, O,
-    O, O, O, R, R, O, O, O,
-    O, O, R, O, O, R, O, O,
+    R, R, O, O, O, O, R, R,
+    R, R, R, O, O, R, R, R,
+    O, R, R, R, R, R, R, O,
+    O, O, R, R, R, R, O, O,
+    O, O, R, R, R, R, O, O,
+    O, R, R, R, R, R, R, O,
+    R, R, R, O, O, R, R, R,
+    R, R, O, O, O, O, R, R,
     ]
     sense.set_pixels(logo)
 
