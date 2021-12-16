@@ -547,7 +547,7 @@ def code():
 
 				liste_mot.append(aliment)
 				rhasspy.text_to_speech(f"{aliment} a été rajouté a votre mot de passe")
-				read_list()
+				
 				continue
 
 			elif intent["name"] == "Stop":
@@ -678,9 +678,24 @@ def code():
 	# si deja un code propose de l'écouter avec le bon mdp 
 	else:
 
-		rhasspy.text_to_speech("Vous avez un code de carte enregistré.")
-
 		liste_mot.clear()
+
+		while True:
+
+			rhasspy.text_to_speech("Vous avez déjà un code voulez vous le retrouver?")
+
+			intent=rhasspy.speech_to_intent()
+
+			# si pas de message 
+			if intent["name"]=="":
+				rhasspy.text_to_speech("je n'ai rien entendu.")
+				continue
+
+			elif intent["name"]=="Oui":
+				break
+
+			elif intent["name"]=="Non":
+				leave()
 
 		while True:
 
@@ -695,7 +710,6 @@ def code():
 
 				liste_mot.append(aliment)
 				rhasspy.text_to_speech(f"{aliment} a été rajouté a votre mot de passe")
-				read_list()
 				continue
 
 			elif intent["name"] == "Stop":
